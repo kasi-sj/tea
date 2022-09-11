@@ -4,6 +4,7 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import '../widgets/clickbutton.dart';
 import '../screens/people.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:vee/tracking.dart';
 
 class Register extends StatefulWidget {
   static String id = 'Register';
@@ -25,6 +26,8 @@ class _RegisterState extends State<Register> {
   FirebaseAuth register = FirebaseAuth.instance;
 
   FirebaseFirestore users = FirebaseFirestore.instance;
+
+  final tracking track = tracking();
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +123,12 @@ class _RegisterState extends State<Register> {
                                 email: user, password: password);
 
                         if (newer != null) {
-                          users.collection('user').add({'users': user});
+                          users
+                              .collection('user')
+                              .doc(user)
+                              .set({'users': "ok"});
+
+                          track.writeCounter(user);
 
                           Navigator.push(context,
                               MaterialPageRoute(builder: (context) {

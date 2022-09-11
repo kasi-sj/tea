@@ -6,6 +6,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'follow.dart';
 import 'request.dart';
 import 'package:vee/screens/chat.dart';
+import 'more_option.dart';
 
 class People extends StatefulWidget {
   int following = 0;
@@ -90,16 +91,13 @@ class _PeopleState extends State<People> {
   }
 
   hasusers(var valu) async {
-    List list = await getusers();
-    if (list.isNotEmpty) {
-      for (var i in list) {
-        if (i == valu) {
-          return true;
-        }
+    String stat = await getusers(valu);
+    if (stat == 'ok') {
+      {
+        return true;
       }
-      return false;
     }
-    return true;
+    return false;
   }
 
   Future getfriend() async {
@@ -162,7 +160,6 @@ class _PeopleState extends State<People> {
         }
 
         request = request.toSet().toList();
-        print(request);
 
         return request;
       }
@@ -184,30 +181,15 @@ class _PeopleState extends State<People> {
     widget.following = list.length;
   }
 
-  Future getusers() async {
-    List<String> users = [
-      'jkasinathan007@gmail.com',
-      'sample1@gmail.com',
-      'kishore567@gmail.com'
-    ];
+  Future getusers(String val) async {
+    var users;
     try {
-      await for (var Snapshot in firestore.collection('user').snapshots()) {
-        for (var message in Snapshot.docs) {
-          try {
-            users.add(message.get('users'));
-          } catch (e) {
-            print(e);
-          }
-        }
-
-        users = users.toSet().toList();
-        print(users);
-
-        return users;
-      }
+      users = await firestore.collection('user').doc(val.toString()).get();
+      print(users['users']);
+      return users['users'];
     } catch (e) {
-      print(e);
-      return [];
+      users = '';
+      return users;
     }
   }
 
@@ -274,6 +256,23 @@ class _PeopleState extends State<People> {
                             color: Colors.lightGreenAccent,
                           ),
                           Text('followers')
+                        ],
+                      )),
+                  TextButton(
+                      onPressed: (() {
+                        getfollowing();
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) {
+                          return Moreoption();
+                        }));
+                      }),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.more_horiz_outlined,
+                            color: Colors.greenAccent,
+                          ),
+                          Text('more')
                         ],
                       )),
                 ],

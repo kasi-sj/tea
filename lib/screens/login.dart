@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import '../widgets/clickbutton.dart';
 import '../screens/people.dart';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vee/tracking.dart';
 
 class Login extends StatefulWidget {
   static String id = 'Login';
@@ -21,6 +24,10 @@ class _LoginState extends State<Login> {
   var first = TextEditingController();
 
   var second = TextEditingController();
+
+  final tracking track = tracking();
+
+  FirebaseFirestore users = FirebaseFirestore.instance;
 
   bool spinner = false;
 
@@ -114,6 +121,12 @@ class _LoginState extends State<Login> {
                         final user = await login.signInWithEmailAndPassword(
                             email: username, password: password);
                         if (user != null) {
+                          track.writeCounter(username);
+                          users
+                              .collection('user')
+                              .doc(username)
+                              .set({'users': "ok"});
+
                           Navigator.push(
                               context,
                               MaterialPageRoute(
