@@ -13,6 +13,6 @@ class PlatformCore {
     } on PlatformException catch (e) {
       print(e);
     }
-    return color;
+    return colors;
   }
 }

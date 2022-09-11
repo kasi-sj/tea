@@ -60,7 +60,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
   getof(String st) async {
     final _repository = PlatformCore();
     String text = await _repository.changeColor(st);
-    print(st);
+    print(text);
     return st;
   }
 
@@ -90,7 +90,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
 
             final exp = await getof(image.path);
 
-            await Navigator.of(context).push(
+            Navigator.of(context).push(
               MaterialPageRoute(builder: (context) {
                 print(image.path);
 

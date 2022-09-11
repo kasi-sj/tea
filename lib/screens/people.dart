@@ -1,3 +1,5 @@
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:vee/widgets/bottomadd.dart';
@@ -7,6 +9,15 @@ import 'follow.dart';
 import 'request.dart';
 import 'package:vee/screens/chat.dart';
 import 'more_option.dart';
+import 'package:vee/profiletracking.dart';
+
+import 'package:path/path.dart';
+import 'dart:typed_data';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'fileuplode.dart';
+import 'image.dart';
+import 'dart:io';
 
 class People extends StatefulWidget {
   int following = 0;
@@ -22,6 +33,65 @@ class People extends StatefulWidget {
 class _PeopleState extends State<People> {
   FirebaseFirestore _friend = FirebaseFirestore.instance;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  String some = '';
+  var bytes;
+  var file;
+  var filename = '';
+  var filepath = '';
+  var task;
+  var somet = '';
+  var byte;
+  var fileimage;
+
+  UploadTask? uploadTask;
+
+  UploadTask? uplode(String des, File fil) {
+    try {
+      final ref = FirebaseStorage.instance.ref(des);
+      return ref.putFile(fil);
+    } on FirebaseException catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  Future<dynamic> uplod(String path) async {
+    if (filename == null) return;
+    final desti = 'profile/${widget.currentuser}';
+    print('uploading');
+    task = uplode(desti, file);
+    if (task == null) return;
+    final snapshot = await task.whenComplete(() => null);
+    final url = await snapshot.ref.getDownloadURL();
+    await firestore
+        .collection(widget.currentuser)
+        .doc('profile')
+        .set({'url': url});
+    tracking track = tracking();
+    track.writeCounter(path);
+    file = File(path);
+    filename = basename(path);
+    filepath = path;
+
+    setState(() {});
+
+    print('downlodelink=$url');
+  }
+
+  imagesup() async {
+    final image = ImagePicker();
+    final XFile? pick = await image.pickImage(source: ImageSource.gallery);
+
+    if (pick == null) return;
+
+    setState(() {
+      file = File(pick.path);
+      filename = basename(pick.path);
+    });
+
+    uplod(pick.path);
+  }
 
   void addli(var val) async {
     if ((val != widget.currentuser) &&
@@ -193,12 +263,22 @@ class _PeopleState extends State<People> {
     }
   }
 
+  gettingfile() async {
+    tracking track = tracking();
+    var gett = await track.readCounter();
+    file = File(gett);
+    filename = basename(gett);
+    filepath = gett;
+    setState(() {});
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getfollowers();
     getfollowing();
+    gettingfile();
   }
 
   @override
@@ -211,9 +291,17 @@ class _PeopleState extends State<People> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'vee',
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w400),
+              TextButton(
+                onPressed: () {
+                  imagesup();
+                },
+                child: CircleAvatar(
+                    radius: 15,
+                    child: ClipOval(
+                      child: filename == ''
+                          ? Image(image: AssetImage('images/smile.png'))
+                          : Image.file(file),
+                    )),
               ),
               // ignore: prefer_const_constructors
               Row(

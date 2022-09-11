@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'fileuplode.dart';
+import 'image.dart';
 
 class Play extends StatefulWidget {
   const Play({Key? key}) : super(key: key);
@@ -11,8 +13,6 @@ class Play extends StatefulWidget {
 }
 
 class _PlayState extends State<Play> {
-  var byte;
-  var fileimage;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +33,7 @@ class _PlayState extends State<Play> {
                   ),
                   Center(
                     child: Image.network(
-                      "https://th.bing.com/th/id/OIP.Ix6XjMbuCvoq3EQNgJoyEQHaFj?pid=ImgDet&rs=1",
+                      "https://media.istockphoto.com/vectors/artificial-intelligence-concept-vector-id950131318?k=6&m=950131318&s=612x612&w=0&h=RE73KdAf4ppnsy51sRk7uuZRrqrJIpM4C2CpF8IMfkI=",
                       loadingBuilder: ((context, child, loadingProgress) =>
                           loadingProgress == null
                               ? child
@@ -95,49 +95,23 @@ class _PlayState extends State<Play> {
                   SizedBox(
                     height: 20,
                   ),
-                  if (fileimage != null)
-                    Container(
-                      child: Image.file(fileimage),
-                    ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  if (byte != null)
-                    Container(
-                      child: Image.memory(byte),
-                    ),
                 ],
               ),
             ),
-            Flexible(
+            TextButton(
+                onPressed: () => Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => image())),
                 child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 50),
-              child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.grey,
+                  padding: const EdgeInsets.all(16.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: Colors.pink),
+                    child: ListTile(
+                      title: Center(child: Text('image view')),
+                    ),
                   ),
-                  height: 30,
-                  width: double.infinity,
-                  child: TextButton(
-                      onPressed: () async {
-                        final image = ImagePicker();
-                        final XFile? pick =
-                            await image.pickImage(source: ImageSource.gallery);
-                        print('hi');
-
-                        if (pick == null) return;
-                        print(pick.path);
-
-                        byte = await pick.readAsBytes();
-                        print(byte);
-                        setState(() {
-                          fileimage = File(pick.path);
-                          byte = byte;
-                        });
-                      },
-                      child: Text('press'))),
-            ))
+                ))
           ],
         ),
       ),
