@@ -97,7 +97,8 @@ class _PeopleState extends State<People> {
     if ((val != widget.currentuser) &&
         (await hasfriend(val)) &&
         (await hasrequest(val)) &&
-        (await hasusers(val))) {
+        (await hasusers(val)) &&
+        (await hasfollow(val))) {
       try {
         var ide = await _friend.collection(val.toString()).add(
             {'request': widget.currentuser, 'id1': '', 'id2': '', 'id3': ''});
@@ -132,6 +133,19 @@ class _PeopleState extends State<People> {
     } else {
       print('error');
     }
+  }
+
+  hasfollow(var valu) async {
+    List list = await getfollow();
+    if (list.isNotEmpty) {
+      for (var i in list) {
+        if (i == valu) {
+          return false;
+        }
+      }
+      return true;
+    }
+    return true;
   }
 
   hasfriend(var valu) async {
@@ -239,18 +253,6 @@ class _PeopleState extends State<People> {
     }
   }
 
-  getfollowers() async {
-    List list = [];
-    list = await getrequest();
-    widget.followers = list.length;
-  }
-
-  getfollowing() async {
-    List list = [];
-    list = await getfollow();
-    widget.following = list.length;
-  }
-
   Future getusers(String val) async {
     var users;
     try {
@@ -261,6 +263,18 @@ class _PeopleState extends State<People> {
       users = '';
       return users;
     }
+  }
+
+  getfollowers() async {
+    List list = [];
+    list = await getrequest();
+    widget.followers = list.length;
+  }
+
+  getfollowing() async {
+    List list = [];
+    list = await getfollow();
+    widget.following = list.length;
   }
 
   gettingfile() async {
@@ -307,8 +321,8 @@ class _PeopleState extends State<People> {
               Row(
                 children: [
                   TextButton(
-                      onPressed: (() {
-                        getfollowing();
+                      onPressed: (() async {
+                        await getfollowing();
                         Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
                           return Follow(
@@ -327,8 +341,8 @@ class _PeopleState extends State<People> {
                         ],
                       )),
                   TextButton(
-                      onPressed: (() {
-                        getfollowers();
+                      onPressed: (() async {
+                        await getfollowers();
                         Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
                           return Request(

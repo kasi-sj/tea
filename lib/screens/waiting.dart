@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'people.dart';
 import 'welcome.dart';
 import 'package:vee/tracking.dart';
+import 'package:vee/core.dart';
 
 class Waiting extends StatefulWidget {
-  const Waiting({super.key});
   static String id = "Waiting";
 
   @override
@@ -23,14 +24,22 @@ class _WaitingState extends State<Waiting> {
       tracking som = tracking();
       String val = "";
       val = await som.readCounter();
+      print("");
+      print("Instantiating...");
+      final platform = PlatformCore();
+      print("");
+      print("Successfull");
       if (val == "") {
         Navigator.pushNamed(context, Welcome.id);
       } else {
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
+        await Navigator.push(context, MaterialPageRoute(builder: (context) {
           return People(
             currentuser: val,
           );
         }));
+        Navigator.pop(context);
+        SystemNavigator.pop();
+        fun();
       }
     }
   }
@@ -53,21 +62,3 @@ class _WaitingState extends State<Waiting> {
     );
   }
 }
-
-// TextButton(
-//                   onPressed: () async {
-//                     tracking som = tracking();
-//                     String val = "";
-//                     val = await som.readCounter();
-//                     if (val == "") {
-//                       Navigator.pushNamed(context, Welcome.id);
-//                     } else {
-//                       Navigator.push(context,
-//                           MaterialPageRoute(builder: (context) {
-//                         return People(
-//                           currentuser: val,
-//                         );
-//                       }));
-//                     }
-//                   },
-//                   child: Text('press'))

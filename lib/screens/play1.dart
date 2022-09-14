@@ -27,7 +27,6 @@ class _Play1State extends State<Play1> {
 
 class TakePictureScreen extends StatefulWidget {
   const TakePictureScreen({
-    super.key,
     required this.camera,
   });
 
@@ -120,7 +119,7 @@ class TakePictureScreenState extends State<TakePictureScreen> {
 class DisplayPictureScreen extends StatelessWidget {
   final File imagePath;
 
-  const DisplayPictureScreen({super.key, required this.imagePath});
+  const DisplayPictureScreen({required this.imagePath});
 
   @override
   Widget build(BuildContext context) {

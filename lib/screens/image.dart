@@ -6,8 +6,6 @@ import 'package:image_picker/image_picker.dart';
 import 'fileuplode.dart';
 
 class image extends StatefulWidget {
-  const image({super.key});
-
   @override
   State<image> createState() => _imageState();
 }

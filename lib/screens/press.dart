@@ -3,6 +3,10 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:vee/core.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:flutter_native_image/flutter_native_image.dart';
 
 class Press1 extends StatefulWidget {
   Press1({required this.firstCamera, required this.cameras});
@@ -24,12 +28,10 @@ class _Press1State extends State<Press1> {
 
 class TakePictureScreen extends StatefulWidget {
   const TakePictureScreen({
-    super.key,
     required this.camera,
   });
 
   final CameraDescription camera;
-
   @override
   TakePictureScreenState createState() => TakePictureScreenState();
 }
@@ -37,6 +39,9 @@ class TakePictureScreen extends StatefulWidget {
 class TakePictureScreenState extends State<TakePictureScreen> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
+
+  late File _imagefile;
+  late List<Face> _faces;
 
   var pre = null;
 
@@ -59,6 +64,37 @@ class TakePictureScreenState extends State<TakePictureScreen> {
 
   getof(String st) async {
     final _repository = PlatformCore();
+    final image = FirebaseVisionImage.fromFile(File(st));
+    final facedetector =
+        FirebaseVision.instance.faceDetector(FaceDetectorOptions(
+      mode: FaceDetectorMode.accurate,
+    ));
+    List<Face> faces = await facedetector.processImage(image);
+    print('hi');
+    final bb = faces.first;
+    final box = bb.boundingBox;
+    print(box.bottom);
+    final cor = bb.boundingBox;
+    print('dd');
+    ;
+    print('ff');
+    File croppedFile = await FlutterNativeImage.cropImage(
+        st,
+        cor.left.toInt(),
+        cor.top.toInt(),
+        (cor.right - cor.left).toInt(),
+        (cor.bottom - cor.top).toInt());
+    File compressedFile = await FlutterNativeImage.compressImage(
+        croppedFile.path,
+        quality: 80,
+        targetWidth: 48,
+        targetHeight: 48);
+    compressedFile == null ? print('null') : print('ok bro');
+    if (mounted) {
+      setState(() {
+        _imagefile = compressedFile;
+      });
+    }
     String text = await _repository.changeColor(st);
     print(text);
     return st;
@@ -89,14 +125,13 @@ class TakePictureScreenState extends State<TakePictureScreen> {
             if (!mounted) return;
 
             final exp = await getof(image.path);
+            File fil = _imagefile;
 
             Navigator.of(context).push(
               MaterialPageRoute(builder: (context) {
                 print(image.path);
 
-                return DisplayPictureScreen(
-                  imagePath: exp,
-                );
+                return DisplayPictureScreen(imagePath: fil);
               }),
             );
           } catch (e) {
@@ -111,16 +146,20 @@ class TakePictureScreenState extends State<TakePictureScreen> {
 }
 
 class DisplayPictureScreen extends StatelessWidget {
-  final String imagePath;
+  final File imagePath;
 
-  const DisplayPictureScreen({super.key, required this.imagePath});
+  const DisplayPictureScreen({required this.imagePath});
 
   @override
   Widget build(BuildContext context) {
     print('ok');
     return Scaffold(
       appBar: AppBar(title: const Text('Display the Picture')),
-      body: Text(imagePath),
+      body: ListView(
+        children: [
+          Image.file(imagePath),
+        ],
+      ),
     );
   }
 }
